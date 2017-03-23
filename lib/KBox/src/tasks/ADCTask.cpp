@@ -32,13 +32,8 @@ void ADCTask::loop() {
   int supply_adc = adc.analogRead(supply_analog, ADC_0);
   int bat1_adc = adc.analogRead(bat1_analog, ADC_0);
   int bat2_adc = adc.analogRead(bat2_analog, ADC_0);
-  int bat3_adc = adc.analogRead(bat3_analog, ADC_0);
-
-  supply = supply_adc * analog_max_voltage / adc.getMaxValue();
-  bat1 = bat1_adc * analog_max_voltage / adc.getMaxValue();
-  bat2 = bat2_adc * analog_max_voltage / adc.getMaxValue();
-  bat3 = bat3_adc * analog_max_voltage / adc.getMaxValue();
-
+  //int bat3_adc = adc.analogRead(bat3_analog, ADC_0); //deactivated while bat3 input is used for rudderSensor input
+    
   //DEBUG("ADC - Supply: %sV Bat1: %sV Bat2: %sV Bat3: %sV", 
       //String(supply, 2).c_str(), String(bat1, 2).c_str(), String(bat2, 2).c_str(), String(bat3, 2).c_str());
 
