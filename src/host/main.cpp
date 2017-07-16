@@ -92,6 +92,7 @@ void setup() {
   autoPilotTask->connectTo(*wifi);
   autoPilotTask->connectTo(*n2kTask);
   adcTask->connectTo(*autoPilotTask);
+  imuTask->connectTo(*autoPilotTask);
 
   // Add all the tasks
   kbox.addTask(new IntervalTask(new RunningLightTask(), 250));
@@ -105,12 +106,12 @@ void setup() {
   kbox.addTask(sdcardTask);
   kbox.addTask(new IntervalTask(autoPilotTask, AUTOPILOT_SAMPLE_TIME));
 
-  NavigationPage *navPage = new NavigationPage();
-  imuTask->connectTo(*navPage);
-  adcTask->connectTo(*navPage);
-  autoPilotTask->connectTo(*navPage);
-  kbox.addPage(navPage);
-  navPage->connectTo(*autoPilotTask);
+  AutopilotControlPage *apControlPage = new AutopilotControlPage();
+  imuTask->connectTo(*apControlPage);
+  adcTask->connectTo(*apControlPage);
+  autoPilotTask->connectTo(*apControlPage);
+  apControlPage->connectTo(*autoPilotTask);
+  kbox.addPage(apControlPage);
 
   BatteryMonitorPage *batPage = new BatteryMonitorPage();
   adcTask->connectTo(*batPage);

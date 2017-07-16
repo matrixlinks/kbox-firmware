@@ -1,7 +1,7 @@
 /*
   The MIT License
 
-  Copyright (c) 2016 Thomas Sarlandie thomas@sarlandie.net
+  Copyright (c) 2017 Thomas Sarlandie thomas@sarlandie.net
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,15 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+
 #pragma once
 
-#include <ADC.h>
-#include <N2kMessages.h> // DegToRad
-#include "TaskManager.h"
-#include "KMessage.h"
-
-class ADCTask : public Task, public KGenerator {
-  private:
-    ADC& adc;
-    float bat1, bat2, bat3, supply;
-
-    // Set to true to use bat3 input as a rudder sensor
-    static const bool   useRudderSensor = true;
-    const double rudderSensorSupplyVoltage = 5.0;
-    const double rudderSensorAngularMovement = DegToRad(66.0);
-    static const bool   rudderSensorZeroToPort = true;
-
+class Angles {
   public:
-    ADCTask(ADC& adc) : Task("ADC"), adc(adc) {};
-    void loop();
+    // courtesy of n2kmessages.cpp - MIT
+    static inline double RadToDeg(double v) { return v*180.0/3.1415926535897932384626433832795; }
+    static inline double DegToRad(double v) { return v/180.0*3.1415926535897932384626433832795; }
+
+    static double normalizeRelativeAngle(double);
+    static double normalizeAbsoluteAngle(double);
 };

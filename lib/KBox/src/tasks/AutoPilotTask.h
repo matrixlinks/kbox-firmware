@@ -26,36 +26,45 @@
 #include "TaskManager.h"
 #include "KMessage.h"
 #include <PID_v1.h>
+#include "util/Angles.h"
 
 //following variables will need to be tuned based on actual boat performance
-#define P_Param  0.5 //proportional param P-gain, the gain determines how much change the OP will make due to a change in error
-#define I_Param  0.0 //integral or I-gain, the the reset determines how much to change the OP over time due to the error
-#define D_Param  0.0 //derivative or D-gain, the preact determines how much to change the OP due from a change in direction of the error
-#define AUTOPILOTDEADZONE  0 //to be adjusted based on boat characteristics
-#define AUTOPILOTSLACK 0 //to be adjusted based on boat characteristics
-#define MAXRUDDERSWING 66.0 //max swing lock to lock
+#define P_Param  1.0 //proportional param P-gain, the gain determines how much change the OP will make due to a change in error
+#define I_Param  0.0 // 0.2 //integral or I-gain, the the reset determines how much to change the OP over time due to the error
+#define D_Param  0.0 // 0.2 //derivative or D-gain, the preact determines how much to change the OP due from a change in direction of the error
+#define AUTOPILOTSLACK Angles::DegToRad(0) //to be adjusted based on boat characteristics
+#define MAXRUDDERSWING Angles::DegToRad(66.0) //max swing allowed to the autopilot (should be less or equal to rudder swing)
 // How often should the autopilot computations run
 #define AUTOPILOT_SAMPLE_TIME 250
 
-class AutoPilotTask : public Task, public KReceiver, public KVisitor, public KGenerator {  
+class AutoPilotTask : public Task, public KReceiver, public KVisitor, public KGenerator {
   private:
-    double apRudderSensorPosition; //populated from RudderSensorTask
-    double apRudderCommandSent;
-    bool sameLastDirection; //last rudder movement direction
-    bool navMode = false;
-    bool navDodgeMode = false;
+    // Have we seen the compass calibrated at least once?
+    bool gotCompassCalibration = false;
 
-    double apCurrentHeading = 0;
-    double apTargetHeading = 0;
-    double apTargetRudderPosition = 0;
+    // Provided by IMUMessage
+    double currentHeading = 0;
+
+    // Provided by AutopilotControlMessage
+    bool engaged = false;
+    double targetHeading = 0;
+
+    // Provided by RudderMessage
+    // Assume rudder is centered by default.
+    double currentRuddderPosition = MAXRUDDERSWING / 2;
+
+    // Calculated by the PID
+    double targetRudderPosition = 0;
 
     PID headingPID;
 
   public:
     AutoPilotTask();
     void processMessage(const KMessage& message);
-    void visit(const NAVMessage&);
-    void visit(const RUDMessage&);
+    void visit(const AutopilotControlMessage&);
+    void visit(const RudderMessage&);
+    void visit(const IMUMessage&);
+
     void setup();
     void loop();
 };
